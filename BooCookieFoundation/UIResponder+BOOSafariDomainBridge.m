@@ -1,16 +1,16 @@
 //
-//  AppDelegate+BOOSafariDomainBridge.m
-//  BOOSafariDomainBridge
+//  UIResponder+Test.m
+//  boo
 //
-//  Created by Awhisper on 16/5/11.
-//  Copyright © 2016年 baidu. All rights reserved.
+//  Created by wanglei on 2018/4/12.
+//  Copyright © 2018年 wanglei. All rights reserved.
 //
 
-#import "AppDelegate+BOOSafariDomainBridge.h"
+#import "UIResponder+BOOSafariDomainBridge.h"
 #import <objc/runtime.h>
 #import "BOOSafariDomainBridge.h"
 
-@implementation AppDelegate (BOOSafariDomainBridge)
+@implementation UIResponder (BOOSafariDomainBridge)
 
 + (void)load
 {
@@ -55,4 +55,7 @@
     }
     return [self BOOApplication:application openURL:url options:options];
 }
+
+
+
 @end

@@ -10,6 +10,8 @@
 
 @interface BooCookieGetManager : NSObject
 
-+ (void)getCookieFromSafari:(void (^) (NSDictionary *cookie))completeBlock;
++ (void)getCookie:(void (^) (NSDictionary *cookie))completeBlock;
+
++ (void)getCookieWithPlaseBoard:(BOOL)isPlasteBoard completeBlock:(void (^) (NSDictionary *cookie))completeBlock;
 
 @end

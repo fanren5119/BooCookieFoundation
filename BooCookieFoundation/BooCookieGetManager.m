@@ -15,21 +15,30 @@
 
 @implementation BooCookieGetManager
 
-+ (void)getCookieFromSafari:(void (^) (NSDictionary *cookie))completeBlock
++ (void)getCookie:(void (^) (NSDictionary *cookie))completeBlock
 {
+    [self getCookieWithPlaseBoard:YES completeBlock:completeBlock];
+}
+
++ (void)getCookieWithPlaseBoard:(BOOL)isPlasteBoard completeBlock:(void (^) (NSDictionary *cookie))completeBlock
+{
+    if (isPlasteBoard) {
+        [self getCookieWithPasteBoard:completeBlock];
+        return;
+    }
     CGFloat version = [[UIDevice currentDevice] systemVersion].floatValue;
     
-    if (YES) {
-        [self getCookieWithPasteBoard:completeBlock];
-    } else if (version >= 9.0 && version < 11.0) {
+    if (version >= 9.0 && version < 11.0) {
         [self getCookieWithSafariViewController:completeBlock];
+    } else {
+        [self getCookieWithPasteBoard:completeBlock];
     }
 }
 
 + (void)getCookieWithSafariViewController:(void (^) (NSDictionary *cookie))completeBlock
 {
     NSURL *url = [NSURL URLWithString:BOO_SAFARIURL];
-    [BOOSafariDomainBridge safariDomainBridgeWith:url key:@"Boo"];
+    [BOOSafariDomainBridge safariDomainBridgeWith:url key:@""];
     [[BOOSafariDomainBridge singleton] getSafariCookie:^(BOOL success, NSString *cookie) {
         NSDictionary *cookieDict = [self dictionaryWithURLString:cookie];
         completeBlock(cookieDict);
