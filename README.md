@@ -3,9 +3,9 @@
 ### 1.只使用剪贴板
 ```
 这里传递的参数是一个正则表达式,用来判断从剪贴板拿到的字符串,是否符合要求
-    [BooCookieGetManager getCookieWithPlaseBoard:nil completeBlock:^(NSDictionary *cookie) {
-        NSLog(@"cookie = %@", cookie);
-    }];
+[BooCookieGetManager getCookieWithPlaseBoard:nil completeBlock:^(NSDictionary *cookie) {
+	NSLog(@"cookie = %@", cookie);
+}];
 ```
 ### 2.只使用SafariViewController
 ```
