@@ -13,44 +13,28 @@
 #define BOO_SAFARIURL @"http://bc.run/api/showvdid"
 #define BOO_CookieReg @"^\\[👻\\]\\[.*?\\]$"
 
+static BooCookieGetManager *__shareManager = nil;
+
+@interface BooCookieGetManager()
+
+@property (nonatomic, copy) CompleteBlock completeBlok;
+@property (nonatomic, strong) NSString    *safariURL;
+@property (nonatomic, strong) NSString    *regexpString;
+@property (nonatomic, strong) BOOSafariDomainBridge *bridge;
+
+@end
+
 @implementation BooCookieGetManager
 
-+ (void)getCookie:(void (^) (NSDictionary *cookie))completeBlock
-{
-    [self getCookieWithPlaseBoard:YES completeBlock:completeBlock];
-}
-
-+ (void)getCookieWithPlaseBoard:(BOOL)isPlasteBoard completeBlock:(void (^) (NSDictionary *cookie))completeBlock
-{
-    if (isPlasteBoard) {
-        [self getCookieWithPasteBoard:completeBlock];
-        return;
-    }
-    CGFloat version = [[UIDevice currentDevice] systemVersion].floatValue;
-    
-    if (version >= 9.0 && version < 11.0) {
-        [self getCookieWithSafariViewController:completeBlock];
-    } else {
-        [self getCookieWithPasteBoard:completeBlock];
-    }
-}
-
-+ (void)getCookieWithSafariViewController:(void (^) (NSDictionary *cookie))completeBlock
-{
-    NSURL *url = [NSURL URLWithString:BOO_SAFARIURL];
-    [BOOSafariDomainBridge safariDomainBridgeWith:url key:@""];
-    [[BOOSafariDomainBridge singleton] getSafariCookie:^(BOOL success, NSString *cookie) {
-        NSDictionary *cookieDict = [self dictionaryWithURLString:cookie];
-        completeBlock(cookieDict);
-    }];
-}
-
-+ (void)getCookieWithPasteBoard:(void (^) (NSDictionary *cookie))completeBlock
++ (void)getCookieWithPlaseBoard:(NSString *)regexpString completeBlock:(CompleteBlock)completeBlock
 {
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     NSString *string = [pasteboard string];
-    
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", BOO_CookieReg];
+    NSString *regxStr = BOO_CookieReg;
+    if (regexpString.length > 0) {
+        regxStr = regexpString;
+    }
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regxStr];
     if (![predicate evaluateWithObject:string]) {
         completeBlock(nil);
         return;
@@ -69,6 +53,41 @@
     completeBlock(dictionary);
 }
 
+
++ (void)getCookieWithSafariURL:(NSString *)safariURLStr completeBlock:(CompleteBlock)completeBlock
+{
+    [BooCookieGetManager shareManager].completeBlok = completeBlock;
+
+    NSString *urlString = BOO_SAFARIURL;
+    if (safariURLStr.length > 0) {
+        urlString = safariURLStr;
+    }
+    NSURL *url = [NSURL URLWithString:urlString];
+    BOOSafariDomainBridge *bridge = [BOOSafariDomainBridge safariDomainBridgeWith:url];
+    [BooCookieGetManager shareManager].bridge = bridge;
+    [bridge getSafariCookie];
+}
+
++ (void)getCookieWithSafariURL:(NSString *)safariURLStr regexpString:(NSString *)regexpString completeBlock:(CompleteBlock)completeBlock
+{
+    CGFloat version = [[UIDevice currentDevice] systemVersion].floatValue;
+    if (version >= 9.0 && version < 11.0) {
+        [self getCookieWithSafariURL:safariURLStr completeBlock:completeBlock];
+    } else {
+        [self getCookieWithPlaseBoard:regexpString completeBlock:completeBlock];
+    }
+}
+
+#pragma -mark private
+
++ (instancetype)shareManager
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        __shareManager = [[BooCookieGetManager alloc] init];
+    });
+    return __shareManager;
+}
 
 #pragma -mark conver string to dictionary
 
@@ -108,6 +127,14 @@
         dictionary[key] = value;
     }
     return dictionary;
+}
+
+
++ (void)applicationOpenURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options
+{
+    NSString *encodeUrl = url.absoluteString;
+    NSDictionary *cookieDict = [self dictionaryWithURLString:encodeUrl];
+    [BooCookieGetManager shareManager].completeBlok(cookieDict);
 }
 
 

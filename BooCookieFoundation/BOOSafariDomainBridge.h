@@ -8,20 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void(^BOOSafariReturn)(BOOL success,NSString *cookie);
-
-static NSString * BOOSafariInfoReceivedNotification = @"BOOSafariInfoReceivedNotification";
-
 @interface BOOSafariDomainBridge : NSObject
 
 @property (nonatomic,readonly) NSURL *safariUrl;
 
-@property (nonatomic,strong) NSString *safariKey;
++ (instancetype)safariDomainBridgeWith:(NSURL *)url;
 
-+ (void)safariDomainBridgeWith:(NSURL *)url key:(NSString *)key;
-
-+ (instancetype)singleton;
-
-- (void)getSafariCookie:(BOOSafariReturn)rtBlock;
+- (void)getSafariCookie;
 
 @end

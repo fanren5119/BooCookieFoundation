@@ -30,7 +30,6 @@
 
 @interface BOOSafariDomainBridge ()<SFSafariViewControllerDelegate>
 
-@property (nonatomic, copy) BOOSafariReturn           rtblock;
 @property (nonatomic, strong) SFSafariViewController  *safari;
 @property (nonatomic, strong) BOOSafariMatchView      *matchView;
 @property (nonatomic, strong) NSURL                   *safariUrl;
@@ -39,55 +38,24 @@
 
 @implementation BOOSafariDomainBridge
 
-static BOOSafariDomainBridge *__BOOsingleton__;
-
-+ (void)safariDomainBridgeWith:(NSURL *)url key:(NSString *)key
++ (instancetype)safariDomainBridgeWith:(NSURL *)url
 {
-    if (url && key) {
-        [[self singleton]setSafariUrl:url];
-        [[self singleton]setSafariKey:key];
-    }
+    BOOSafariDomainBridge *bridge = [[BOOSafariDomainBridge alloc] init];
+    bridge.safariUrl = url;
+    return bridge;
 }
 
-+ (instancetype)singleton
-{
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        __BOOsingleton__ = [[self alloc] init];
-    });
-    return __BOOsingleton__;
-}
-
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(selectorToSafariInfoRecieved:) name:BOOSafariInfoReceivedNotification object:nil];
-    }
-    return self;
-}
-
-
-- (void)getSafariCookie:(BOOSafariReturn)rtBlock
+- (void)getSafariCookie
 {
     if (!self.safariUrl) {
-        rtBlock(NO, nil);
         return;
     }
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 9.0) {
-        if (rtBlock) {
-            self.rtblock = rtBlock;
-            [self performSelector:@selector(createSafariViewController) withObject:nil afterDelay:0];
-            
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(BOOSafariTimeOut * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self BOOTimeOut];
-                [self dismissSafariViewController];
-            });
-        }
-    } else {
-        if (rtBlock) {
-            rtBlock(NO,nil);
-        }
+        [self performSelector:@selector(createSafariViewController) withObject:nil afterDelay:0];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(BOOSafariTimeOut * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self dismissSafariViewController];
+        });
     }
 }
 
@@ -128,29 +96,10 @@ static BOOSafariDomainBridge *__BOOsingleton__;
 }
 
 
--(void)safariViewController:(SFSafariViewController *)controller didCompleteInitialLoad:(BOOL)didLoadSuccessfully
+- (void)safariViewController:(SFSafariViewController *)controller didCompleteInitialLoad:(BOOL)didLoadSuccessfully
 {
     [self dismissSafariViewController];
 }
 
--(void)selectorToSafariInfoRecieved:(NSNotification *)noti
-{
-    NSDictionary *userInfo = noti.userInfo;
-    NSURL *schemeurl = [userInfo objectForKey:@"schemeUrl"];
-    NSString *encodeUrl = schemeurl.absoluteString;
-    NSString *decodeUrl = [encodeUrl stringByRemovingPercentEncoding];
-    if (self.rtblock) {
-        self.rtblock(YES,decodeUrl);
-        self.rtblock = nil;
-    }
-}
-
--(void)BOOTimeOut
-{
-    if (self.rtblock) {
-        self.rtblock(NO,nil);
-        self.rtblock = nil;
-    }
-}
 
 @end

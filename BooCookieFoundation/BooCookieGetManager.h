@@ -8,10 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
+typedef void (^CompleteBlock) (NSDictionary *cookie) ;
+
 @interface BooCookieGetManager : NSObject
 
-+ (void)getCookie:(void (^) (NSDictionary *cookie))completeBlock;
++ (void)getCookieWithPlaseBoard:(NSString *)regexpString completeBlock:(CompleteBlock)completeBlock;
 
-+ (void)getCookieWithPlaseBoard:(BOOL)isPlasteBoard completeBlock:(void (^) (NSDictionary *cookie))completeBlock;
++ (void)getCookieWithSafariURL:(NSString *)safariURLStr completeBlock:(CompleteBlock)completeBlock;
+
++ (void)getCookieWithSafariURL:(NSString *)safariURLStr regexpString:(NSString *)regexpString completeBlock:(CompleteBlock)completeBlock;
+
+
++ (void)applicationOpenURL:(NSURL *)url options:(NSDictionary *)options;
 
 @end
