@@ -2,14 +2,14 @@
 ## BooCookieFoundation使用使用
 ### 1.只使用剪贴板
 ```
-	这里传递的参数是一个正则表达式,用来判断从剪贴板拿到的字符串,是否符合要求
+这里传递的参数是一个正则表达式,用来判断从剪贴板拿到的字符串,是否符合要求
     [BooCookieGetManager getCookieWithPlaseBoard:nil completeBlock:^(NSDictionary *cookie) {
         NSLog(@"cookie = %@", cookie);
     }];
 ```
 ### 2.只使用SafariViewController
 ```
-	这里传递的参数是一个地址,用来打开SafariViewController
+这里传递的参数是一个地址,用来打开SafariViewController
     [BooCookieGetManager getCookieWithSafariURL:nil completeBlock:^(NSDictionary *cookie) {
         NSLog(@"cookie = %@", cookie);
     }];
