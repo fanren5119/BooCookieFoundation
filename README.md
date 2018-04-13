@@ -9,7 +9,7 @@
 ```
 ### 2.只使用SafariViewController
 ```
-这里传递的参数是一个地址,用来打开SafariViewController
+	这里传递的参数是一个地址,用来打开SafariViewController
     [BooCookieGetManager getCookieWithSafariURL:nil completeBlock:^(NSDictionary *cookie) {
         NSLog(@"cookie = %@", cookie);
     }];
@@ -32,3 +32,4 @@
 	}
 ```
 
+	
